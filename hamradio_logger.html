@@ -115,8 +115,6 @@
   .table-wrap{overflow-x:auto;}
   table{
     border-collapse:collapse;
-    width:100%;
-    min-width:1080px;
     font-size:0.82rem;
   }
   th,td{
@@ -138,8 +136,6 @@
     text-transform:none;
     font-size:0.72rem;
   }
-  col.col-remarks{width:220px;}
-  col.col-callsign{width:110px;}
   col.col-act{width:38px;}
 
   tbody#entries td{
@@ -263,7 +259,7 @@
     .band-title{font-size:0.7rem;margin-bottom:8px;}
     .sheet{padding:10px 8px 16px;margin-top:8px;}
     .toolbar{gap:8px;margin-bottom:10px;}
-    table{min-width:0;font-size:0.74rem;}
+    table{font-size:0.74rem;}
     th,td{padding:3px 4px;}
   }
 </style>
@@ -300,13 +296,13 @@
   <div class="table-wrap">
   <table>
     <colgroup>
-      <col style="width:95px">
-      <col style="width:64px"><col style="width:64px">
-      <col class="col-callsign">
-      <col style="width:85px">
-      <col style="width:70px">
-      <col style="width:55px"><col style="width:55px">
-      <col class="col-remarks">
+      <col style="width:calc(10ch + 24px)">
+      <col style="width:calc(5ch + 24px)"><col style="width:calc(5ch + 24px)">
+      <col style="width:calc(10ch + 10px)">
+      <col style="width:calc(4ch + 10px)">
+      <col style="width:calc(6ch + 10px)">
+      <col style="width:calc(3ch + 10px)"><col style="width:calc(3ch + 10px)">
+      <col style="width:calc(12ch + 10px)">
       <col class="col-act">
     </colgroup>
     <thead>

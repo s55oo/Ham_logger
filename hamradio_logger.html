@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amateur Radio Log</title>
+<style>
+  :root{
+    --band-dark:#363a4a;
+    --band-dark2:#2b2e3a;
+    --paper:#ffffff;
+    --line:#9a9a9a;
+    --line-light:#d5d5d5;
+    --head-bg:#dcdcdc;
+    --head-bg2:#e9e9e9;
+    --text:#1c1c1c;
+    --accent:#3a5a8c;
+    --accent-dark:#2c4468;
+    --danger:#a3392f;
+    --ok:#2e7d4f;
+    --muted:#6b6b6b;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    padding:0 16px 48px;
+    background:#e7e7ea;
+    font-family:Arial, Helvetica, sans-serif;
+    color:var(--text);
+  }
+  .band{
+    margin:0 -16px;
+    padding:34px 16px 40px;
+    background:linear-gradient(135deg,var(--band-dark),var(--band-dark2));
+    text-align:center;
+    color:#fff;
+  }
+  .band h1{
+    margin:0;
+    font-size:2.4rem;
+    letter-spacing:1px;
+    font-weight:800;
+    text-transform:uppercase;
+  }
+  .band p{
+    margin:8px 0 0;
+    font-size:0.95rem;
+    color:#c9cbd6;
+    letter-spacing:2px;
+    text-transform:uppercase;
+  }
+  .sheet{
+    max-width:1180px;
+    margin:-24px auto 0;
+    background:var(--paper);
+    box-shadow:0 12px 30px rgba(0,0,0,.18);
+    border:1px solid #bbb;
+    padding:24px 24px 30px;
+  }
+  .toolbar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px 18px;
+    align-items:center;
+    justify-content:space-between;
+    padding-bottom:16px;
+    margin-bottom:16px;
+    border-bottom:1px solid var(--line-light);
+  }
+  .toolbar .group{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    align-items:center;
+  }
+  .toolbar label{
+    font-size:0.8rem;
+    color:var(--muted);
+    margin-right:4px;
+  }
+  .toolbar input[type=text]{
+    padding:6px 8px;
+    border:1px solid #bbb;
+    font-size:0.85rem;
+    width:110px;
+  }
+  button{
+    font-family:inherit;
+    font-size:0.82rem;
+    padding:7px 12px;
+    border:1px solid var(--accent-dark);
+    background:var(--accent);
+    color:#fff;
+    cursor:pointer;
+    border-radius:2px;
+  }
+  button:hover{background:var(--accent-dark);}
+  button.secondary{
+    background:#fff;
+    color:var(--accent-dark);
+  }
+  button.secondary:hover{background:#eef1f6;}
+  button.danger{
+    background:#fff;
+    color:var(--danger);
+    border-color:var(--danger);
+  }
+  button.danger:hover{background:#fbeceb;}
+  button:disabled{
+    opacity:.5;
+    cursor:not-allowed;
+  }
+  .status{
+    font-size:0.8rem;
+    color:var(--muted);
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .dot{
+    width:9px;height:9px;border-radius:50%;
+    background:#bbb;display:inline-block;
+    flex:none;
+  }
+  .dot.on{background:var(--ok);}
+  .dot.off{background:#bbb;}
+  .dot.warn{background:#c99a2e;}
+
+  .table-wrap{overflow-x:auto;}
+  table{
+    border-collapse:collapse;
+    width:100%;
+    min-width:1080px;
+    font-size:0.82rem;
+  }
+  th,td{
+    border:1px solid var(--line);
+    padding:5px 6px;
+    text-align:center;
+    vertical-align:middle;
+  }
+  thead th{
+    background:var(--head-bg);
+    font-weight:700;
+    text-transform:uppercase;
+    font-size:0.72rem;
+    letter-spacing:.5px;
+  }
+  thead tr.sub th{
+    background:var(--head-bg2);
+    font-weight:600;
+    text-transform:none;
+    font-size:0.72rem;
+  }
+  col.col-remarks{width:220px;}
+  col.col-callsign{width:110px;}
+  col.col-act{width:38px;}
+
+  tbody#entries td{
+    background:#fff;
+    font-size:0.82rem;
+  }
+  tbody#entries td.remarks{text-align:left;}
+  tbody#entries tr:nth-child(even) td{background:#fafafa;}
+  .empty-row td{
+    color:var(--muted);
+    font-style:italic;
+    padding:14px;
+  }
+
+  .del-btn{
+    background:none;
+    border:none;
+    color:var(--danger);
+    font-weight:700;
+    font-size:0.95rem;
+    padding:0 4px;
+    line-height:1;
+  }
+  .del-btn:hover{color:#6f1d16;background:none;}
+
+  tbody#inputRow td{
+    background:#f4f7fb;
+    padding:4px;
+  }
+  tbody#inputRow input,
+  tbody#inputRow select{
+    width:100%;
+    box-sizing:border-box;
+    font-family:inherit;
+    font-size:0.8rem;
+    padding:4px 3px;
+    border:1px solid #b7c3d6;
+    background:#fff;
+  }
+  tbody#inputRow input:focus,
+  tbody#inputRow select:focus{
+    outline:2px solid var(--accent);
+    outline-offset:-1px;
+  }
+  .log-btn-cell{
+    background:#f4f7fb;
+  }
+  .log-btn{
+    width:100%;
+    white-space:nowrap;
+  }
+
+  .note{
+    margin-top:14px;
+    font-size:0.78rem;
+    color:var(--muted);
+    line-height:1.5;
+  }
+  .note strong{color:var(--text);}
+  .footer-links{
+    text-align:center;
+    margin-top:26px;
+    font-size:0.78rem;
+    color:#8a8a90;
+  }
+  .footer-links a{color:#8a8a90;}
+
+  @media (max-width:700px){
+    .band h1{font-size:1.6rem;}
+    .sheet{padding:16px 12px 22px;margin-top:-16px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="band">
+  <h1>Amateur Radio Log</h1>
+  <p>Digital QSO Logbook</p>
+</div>
+
+<div class="sheet">
+
+  <div class="toolbar">
+    <div class="group">
+      <label for="myCall">My Callsign</label>
+      <input type="text" id="myCall" placeholder="e.g. S51ABC">
+    </div>
+    <div class="group">
+      <span class="status"><span class="dot off" id="fileDot"></span><span id="fileStatus">Not connected — entries are kept in this browser only</span></span>
+    </div>
+    <div class="group">
+      <button class="secondary" id="connectBtn" type="button">📂 Connect ADIF File</button>
+      <button class="secondary" id="reconnectBtn" type="button" style="display:none;">🔄 Reconnect</button>
+      <button class="secondary" id="exportBtn" type="button">⬇ Export ADIF</button>
+      <button class="danger" id="clearBtn" type="button">🗑 Clear Log</button>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+  <table>
+    <colgroup>
+      <col style="width:95px">
+      <col style="width:64px"><col style="width:64px">
+      <col class="col-callsign">
+      <col style="width:70px">
+      <col style="width:70px">
+      <col style="width:85px">
+      <col style="width:55px"><col style="width:55px">
+      <col class="col-remarks">
+      <col class="col-act">
+    </colgroup>
+    <thead>
+      <tr>
+        <th rowspan="2">Date</th>
+        <th colspan="2">Time</th>
+        <th rowspan="2">Callsign</th>
+        <th rowspan="2">Mode</th>
+        <th rowspan="2">Power</th>
+        <th rowspan="2">Frequency</th>
+        <th colspan="2">Report</th>
+        <th rowspan="2">Remarks</th>
+        <th rowspan="2"></th>
+      </tr>
+      <tr class="sub">
+        <th>Start</th><th>End</th>
+        <th>Sent</th><th>Rcvd</th>
+      </tr>
+    </thead>
+    <tbody id="entries">
+      <tr class="empty-row" id="emptyRow"><td colspan="11">No contacts logged yet — enter your first QSO below.</td></tr>
+    </tbody>
+    <tbody id="inputRow">
+      <tr>
+        <td><input type="date" id="in_date"></td>
+        <td><input type="time" id="in_start"></td>
+        <td><input type="time" id="in_end"></td>
+        <td><input type="text" id="in_call" placeholder="callsign" autocomplete="off" style="text-transform:uppercase"></td>
+        <td>
+          <input type="text" id="in_mode" list="modeList" placeholder="mode" autocomplete="off">
+          <datalist id="modeList">
+            <option value="SSB"><option value="CW"><option value="FM"><option value="AM">
+            <option value="FT8"><option value="FT4"><option value="RTTY"><option value="PSK31">
+            <option value="JT65"><option value="JT9"><option value="MFSK">
+          </datalist>
+        </td>
+        <td><input type="text" id="in_power" placeholder="W"></td>
+        <td><input type="text" id="in_freq" placeholder="MHz"></td>
+        <td><input type="text" id="in_rst_s" placeholder="59"></td>
+        <td><input type="text" id="in_rst_r" placeholder="59"></td>
+        <td><input type="text" id="in_remarks" placeholder="remarks"></td>
+        <td class="log-btn-cell"><button class="log-btn" id="logBtn" type="button" title="Log this QSO">➕</button></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p class="note">
+    <strong>How this works:</strong> new contacts are entered in the row at the bottom and appear above it once logged, like filling a paper logbook. Your log is kept in this browser (it will still be here next time you open this file). Use <strong>Connect ADIF File</strong> once to pick or create an .adi file on your computer — every QSO you log afterwards is appended to it automatically. <strong>Export ADIF</strong> re-downloads the full log as a fresh .adi file any time, and works even if auto-save isn't connected (e.g. in Firefox). Deleting a row removes it from this page and future exports, but not from a file that was already auto-saved.
+  </p>
+
+  <div class="footer-links">ADIF format reference: <a href="https://www.adif.org/" target="_blank" rel="noopener">adif.org</a></div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var LS_ENTRIES = "hamlog_entries_v1";
+  var LS_MYCALL = "hamlog_mycall_v1";
+  var IDB_NAME = "hamlogger-db";
+  var IDB_STORE = "handles";
+  var IDB_KEY = "adifFile";
+
+  var entries = [];
+  var fileHandle = null;
+  var fileHandleReady = false; // permission verified this session
+  var supportsFS = typeof window.showSaveFilePicker === "function";
+
+  var el = {};
+  ["myCall","fileDot","fileStatus","connectBtn","reconnectBtn","exportBtn","clearBtn",
+   "entries","emptyRow","in_date","in_start","in_end","in_call","in_mode","in_power",
+   "in_freq","in_rst_s","in_rst_r","in_remarks","logBtn"
+  ].forEach(function(id){ el[id] = document.getElementById(id); });
+
+  // ---------- IndexedDB helpers (to persist the file handle across reloads) ----------
+  function idbOpen(){
+    return new Promise(function(resolve,reject){
+      var req = indexedDB.open(IDB_NAME, 1);
+      req.onupgradeneeded = function(){ req.result.createObjectStore(IDB_STORE); };
+      req.onsuccess = function(){ resolve(req.result); };
+      req.onerror = function(){ reject(req.error); };
+    });
+  }
+  function idbGet(key){
+    return idbOpen().then(function(db){
+      return new Promise(function(resolve,reject){
+        var tx = db.transaction(IDB_STORE,"readonly");
+        var rq = tx.objectStore(IDB_STORE).get(key);
+        rq.onsuccess = function(){ resolve(rq.result); };
+        rq.onerror = function(){ reject(rq.error); };
+      });
+    }).catch(function(){ return undefined; });
+  }
+  function idbSet(key,val){
+    return idbOpen().then(function(db){
+      return new Promise(function(resolve,reject){
+        var tx = db.transaction(IDB_STORE,"readwrite");
+        tx.objectStore(IDB_STORE).put(val,key);
+        tx.oncomplete = function(){ resolve(); };
+        tx.onerror = function(){ reject(tx.error); };
+      });
+    }).catch(function(){});
+  }
+
+  // ---------- persistence of log entries ----------
+  function loadEntries(){
+    try{
+      var raw = localStorage.getItem(LS_ENTRIES);
+      entries = raw ? JSON.parse(raw) : [];
+    }catch(e){ entries = []; }
+  }
+  function saveEntries(){
+    try{ localStorage.setItem(LS_ENTRIES, JSON.stringify(entries)); }catch(e){}
+  }
+  function loadMyCall(){
+    try{ el.myCall.value = localStorage.getItem(LS_MYCALL) || ""; }catch(e){}
+  }
+  el.myCall.addEventListener("change", function(){
+    try{ localStorage.setItem(LS_MYCALL, el.myCall.value.trim().toUpperCase()); }catch(e){}
+  });
+
+  // ---------- rendering ----------
+  function fmtDate(iso){
+    if(!iso) return "";
+    var p = iso.split("-");
+    return p.length===3 ? (p[2]+"/"+p[1]+"/"+p[0]) : iso;
+  }
+  function esc(s){
+    var d = document.createElement("div");
+    d.textContent = s == null ? "" : s;
+    return d.innerHTML;
+  }
+  function render(){
+    el.entries.innerHTML = "";
+    if(entries.length === 0){
+      el.entries.appendChild(el.emptyRow);
+      return;
+    }
+    entries.forEach(function(q){
+      var tr = document.createElement("tr");
+      tr.innerHTML =
+        "<td>"+esc(fmtDate(q.date))+"</td>"+
+        "<td>"+esc(q.start)+"</td>"+
+        "<td>"+esc(q.end)+"</td>"+
+        "<td style='font-weight:700'>"+esc(q.call)+"</td>"+
+        "<td>"+esc(q.mode)+"</td>"+
+        "<td>"+esc(q.power)+"</td>"+
+        "<td>"+esc(q.freq)+"</td>"+
+        "<td>"+esc(q.rstS)+"</td>"+
+        "<td>"+esc(q.rstR)+"</td>"+
+        "<td class='remarks'>"+esc(q.remarks)+"</td>"+
+        "<td><button class='del-btn' data-id='"+q.id+"' title='Delete row'>✕</button></td>";
+      el.entries.appendChild(tr);
+    });
+    el.entries.querySelectorAll(".del-btn").forEach(function(b){
+      b.addEventListener("click", function(){ deleteEntry(b.getAttribute("data-id")); });
+    });
+  }
+
+  function deleteEntry(id){
+    if(!confirm("Delete this logged contact from the on-screen log?\n(It will not be removed from a file that was already auto-saved.)")) return;
+    entries = entries.filter(function(q){ return q.id !== id; });
+    saveEntries();
+    render();
+  }
+
+  // ---------- ADIF generation ----------
+  function pad(n){ return (n<10?"0":"")+n; }
+  function nowDate(){
+    var d = new Date();
+    return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+  }
+  function nowTime(){
+    var d = new Date();
+    return pad(d.getHours())+":"+pad(d.getMinutes());
+  }
+  function adifField(name, value){
+    if(value === undefined || value === null || value === "") return "";
+    var v = String(value);
+    return "<"+name+":"+v.length+">"+v+" ";
+  }
+  function adifHeader(){
+    var d = new Date();
+    return "Generated by Amateur Radio Log (HTML QSO Logger)\n"+
+           "<ADIF_VER:5>3.1.4\n"+
+           "<PROGRAMID:16>HTML HAM Logger\n"+
+           "<CREATED_TIMESTAMP:15>"+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+" "+pad(d.getHours())+pad(d.getMinutes())+pad(d.getSeconds())+"\n"+
+           "<EOH>\n";
+  }
+  function adifRecord(q){
+    var myCall = (el.myCall.value||"").trim().toUpperCase();
+    var line = "";
+    line += adifField("QSO_DATE", q.date ? q.date.replace(/-/g,"") : "");
+    line += adifField("TIME_ON", q.start ? q.start.replace(":","")+"00" : "");
+    if(q.end) line += adifField("TIME_OFF", q.end.replace(":","")+"00");
+    line += adifField("CALL", (q.call||"").toUpperCase());
+    if(myCall) line += adifField("STATION_CALLSIGN", myCall);
+    line += adifField("MODE", (q.mode||"").toUpperCase());
+    line += adifField("TX_PWR", q.power);
+    line += adifField("FREQ", q.freq);
+    line += adifField("RST_SENT", q.rstS);
+    line += adifField("RST_RCVD", q.rstR);
+    line += adifField("COMMENT", q.remarks);
+    line += "<EOR>\n";
+    return line;
+  }
+  function fullAdifText(){
+    var out = adifHeader();
+    entries.forEach(function(q){ out += adifRecord(q); });
+    return out;
+  }
+
+  // ---------- manual export ----------
+  el.exportBtn.addEventListener("click", function(){
+    var blob = new Blob([fullAdifText()], {type:"text/plain"});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    var d = new Date();
+    a.href = url;
+    a.download = "hamradio_log_"+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+".adi";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+  });
+
+  // ---------- clear log ----------
+  el.clearBtn.addEventListener("click", function(){
+    if(entries.length===0) return;
+    if(!confirm("Clear the entire on-screen log? This does not affect any file already auto-saved. Consider exporting first.")) return;
+    entries = [];
+    saveEntries();
+    render();
+  });
+
+  // ---------- File System Access API: connect / auto-append ----------
+  function setStatus(mode, text){
+    el.fileDot.className = "dot "+mode;
+    el.fileStatus.textContent = text;
+  }
+
+  function updateStatusIdle(){
+    if(!supportsFS){
+      setStatus("off", "Auto-save needs Chrome or Edge — use Export ADIF to save your log");
+      el.connectBtn.disabled = true;
+    } else if(fileHandle && fileHandleReady){
+      setStatus("on", "Auto-saving to “"+fileHandle.name+"”");
+    } else if(fileHandle && !fileHandleReady){
+      setStatus("warn", "Linked to “"+fileHandle.name+"” — click Reconnect to resume auto-save");
+      el.reconnectBtn.style.display = "";
+    } else {
+      setStatus("off", "Not connected — entries are kept in this browser only");
+    }
+  }
+
+  function ensureAdifHeaderIfEmpty(handle){
+    return handle.getFile().then(function(file){
+      if(file.size === 0){
+        return handle.createWritable({keepExistingData:true}).then(function(w){
+          return w.write(adifHeader()).then(function(){ return w.close(); });
+        });
+      }
+    });
+  }
+
+  function appendToFile(handle, text){
+    return handle.getFile().then(function(file){
+      return handle.createWritable({keepExistingData:true}).then(function(w){
+        return w.write({type:"write", position:file.size, data:text}).then(function(){
+          return w.close();
+        });
+      });
+    });
+  }
+
+  function verifyPermission(handle){
+    var opts = {mode:"readwrite"};
+    return handle.queryPermission(opts).then(function(p){
+      if(p === "granted") return true;
+      return handle.requestPermission(opts).then(function(p2){ return p2 === "granted"; });
+    });
+  }
+
+  el.connectBtn.addEventListener("click", function(){
+    if(!supportsFS) return;
+    window.showSaveFilePicker({
+      suggestedName: "hamradio_log.adi",
+      types: [{description:"ADIF file", accept:{"text/plain":[".adi",".adif"]}}]
+    }).then(function(handle){
+      fileHandle = handle;
+      fileHandleReady = true;
+      return idbSet(IDB_KEY, handle).then(function(){
+        return ensureAdifHeaderIfEmpty(handle);
+      });
+    }).then(function(){
+      updateStatusIdle();
+      el.reconnectBtn.style.display = "none";
+    }).catch(function(err){
+      if(err && err.name !== "AbortError"){
+        alert("Could not connect the ADIF file: "+err.message);
+      }
+    });
+  });
+
+  el.reconnectBtn.addEventListener("click", function(){
+    if(!fileHandle) return;
+    verifyPermission(fileHandle).then(function(ok){
+      fileHandleReady = ok;
+      if(!ok) alert("Permission to write to the file was not granted.");
+      updateStatusIdle();
+    }).catch(function(err){
+      alert("Could not reconnect: "+err.message);
+    });
+  });
+
+  function tryRestoreHandle(){
+    if(!supportsFS) { updateStatusIdle(); return; }
+    idbGet(IDB_KEY).then(function(handle){
+      if(handle){
+        fileHandle = handle;
+        fileHandleReady = false;
+      }
+      updateStatusIdle();
+    });
+  }
+
+  // ---------- logging a new QSO ----------
+  function resetInputRowForNext(){
+    el.in_date.value = nowDate();
+    el.in_start.value = nowTime();
+    el.in_end.value = "";
+    el.in_call.value = "";
+    el.in_mode.value = "";
+    el.in_power.value = "";
+    el.in_freq.value = "";
+    el.in_rst_s.value = "";
+    el.in_rst_r.value = "";
+    el.in_remarks.value = "";
+    el.in_call.focus();
+  }
+
+  function logQso(){
+    var call = el.in_call.value.trim();
+    if(!call){
+      alert("Please enter a callsign before logging the QSO.");
+      el.in_call.focus();
+      return;
+    }
+    var q = {
+      id: Date.now().toString(36)+Math.random().toString(36).slice(2,7),
+      date: el.in_date.value || nowDate(),
+      start: el.in_start.value,
+      end: el.in_end.value,
+      call: call.toUpperCase(),
+      mode: el.in_mode.value.trim().toUpperCase(),
+      power: el.in_power.value.trim(),
+      freq: el.in_freq.value.trim(),
+      rstS: el.in_rst_s.value.trim(),
+      rstR: el.in_rst_r.value.trim(),
+      remarks: el.in_remarks.value.trim()
+    };
+    entries.push(q);
+    saveEntries();
+    render();
+    resetInputRowForNext();
+
+    if(fileHandle){
+      var proceed = fileHandleReady ? Promise.resolve(true) : verifyPermission(fileHandle).then(function(ok){ fileHandleReady = ok; updateStatusIdle(); return ok; });
+      proceed.then(function(ok){
+        if(!ok) return;
+        return appendToFile(fileHandle, adifRecord(q));
+      }).catch(function(err){
+        setStatus("warn", "Auto-save failed for the last QSO — click Reconnect ("+err.message+")");
+        fileHandleReady = false;
+        el.reconnectBtn.style.display = "";
+      });
+    }
+  }
+  el.logBtn.addEventListener("click", logQso);
+  ["in_call","in_mode","in_power","in_freq","in_rst_s","in_rst_r","in_remarks"].forEach(function(id){
+    el[id].addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); logQso(); } });
+  });
+
+  // ---------- init ----------
+  loadEntries();
+  loadMyCall();
+  render();
+  resetInputRowForNext();
+  tryRestoreHandle();
+
+})();
+</script>
+
+</body>
+</html>

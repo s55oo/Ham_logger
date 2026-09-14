@@ -7,7 +7,6 @@
 <style>
   :root{
     --band-dark:#363a4a;
-    --band-dark2:#2b2e3a;
     --paper:#ffffff;
     --line:#9a9a9a;
     --line-light:#d5d5d5;
@@ -28,23 +27,17 @@
     font-family:Arial, Helvetica, sans-serif;
     color:var(--text);
   }
-  .band{
-    margin:0 -16px;
-    padding:14px 16px;
-    background:linear-gradient(135deg,var(--band-dark),var(--band-dark2));
-    text-align:center;
-    color:#fff;
-  }
   .band-title{
-    margin:0;
+    margin:0 0 16px;
+    text-align:center;
     font-size:0.85rem;
-    color:#c9cbd6;
+    color:var(--muted);
     letter-spacing:2px;
     text-transform:uppercase;
   }
   .sheet{
     max-width:1180px;
-    margin:-24px auto 0;
+    margin:24px auto 0;
     background:var(--paper);
     box-shadow:0 12px 30px rgba(0,0,0,.18);
     border:1px solid #bbb;
@@ -259,18 +252,16 @@
   }
   @media screen and (orientation:portrait) and (max-width:640px) and (pointer:coarse){
     .rotate-overlay{display:flex;}
-    .band,.sheet{display:none;}
+    .sheet{display:none;}
     body.rotate-dismissed .rotate-overlay{display:none;}
-    body.rotate-dismissed .band{display:block;}
     body.rotate-dismissed .sheet{display:block;}
   }
 
   /* ---------- phone landscape: tighten things up to reduce side-scrolling ---------- */
   @media screen and (orientation:landscape) and (max-height:500px) and (pointer:coarse){
     body{padding:0 8px 24px;}
-    .band{padding:8px 0;}
-    .band-title{font-size:0.7rem;}
-    .sheet{padding:10px 8px 16px;margin-top:-10px;}
+    .band-title{font-size:0.7rem;margin-bottom:8px;}
+    .sheet{padding:10px 8px 16px;margin-top:8px;}
     .toolbar{gap:8px;margin-bottom:10px;}
     table{min-width:0;font-size:0.74rem;}
     th,td{padding:3px 4px;}
@@ -285,11 +276,9 @@
   <button class="secondary" id="rotateDismissBtn" type="button">Continue in portrait</button>
 </div>
 
-<div class="band">
-  <p class="band-title" id="bandTitle">QSO Logbook</p>
-</div>
-
 <div class="sheet">
+
+  <p class="band-title" id="bandTitle">QSO Logbook</p>
 
   <div class="toolbar">
     <div class="group">

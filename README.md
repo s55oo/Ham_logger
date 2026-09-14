@@ -9,6 +9,7 @@ This is a single-file, offline-first app (`hamradio_logger.html`) — everything
 |---|---|---|
 | Logged QSOs | `localStorage` | `hamlog_entries_v1` (JSON array of all logged contacts) |
 | Your callsign ("my call" field) | `localStorage` | `hamlog_mycall_v1` |
+| "Continue in portrait" choice on the rotate-to-landscape prompt (phones) | `localStorage` | `hamlog_rotate_dismissed_v1` |
 | Connected ADIF file handle (for auto-save/reconnect) | `IndexedDB` | database `hamlogger-db`, store `handles`, key `adifFile` |
 
 Use **Export ADIF** any time to get a portable `.adi` copy of your log — this is the recommended way to back up or move your QSOs, since the browser storage above is local to one browser/profile and can be cleared by the browser.

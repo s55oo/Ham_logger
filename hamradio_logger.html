@@ -30,21 +30,14 @@
   }
   .band{
     margin:0 -16px;
-    padding:34px 16px 40px;
+    padding:14px 16px;
     background:linear-gradient(135deg,var(--band-dark),var(--band-dark2));
     text-align:center;
     color:#fff;
   }
-  .band h1{
+  .band-title{
     margin:0;
-    font-size:2.4rem;
-    letter-spacing:1px;
-    font-weight:800;
-    text-transform:uppercase;
-  }
-  .band p{
-    margin:8px 0 0;
-    font-size:0.95rem;
+    font-size:0.85rem;
     color:#c9cbd6;
     letter-spacing:2px;
     text-transform:uppercase;
@@ -234,16 +227,66 @@
   }
 
   @media (max-width:700px){
-    .band h1{font-size:1.6rem;}
     .sheet{padding:16px 12px 22px;margin-top:-16px;}
+  }
+
+  /* ---------- phone: prompt to rotate to landscape ---------- */
+  .rotate-overlay{
+    display:none;
+    position:fixed; inset:0;
+    background:var(--band-dark);
+    color:#fff;
+    z-index:9999;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:24px;
+    gap:14px;
+  }
+  .rotate-overlay .icon{
+    font-size:3rem;
+    animation:rotateHint 1.6s ease-in-out infinite;
+  }
+  .rotate-overlay p{
+    max-width:320px;
+    font-size:0.95rem;
+    line-height:1.5;
+  }
+  @keyframes rotateHint{
+    0%,100%{transform:rotate(0deg);}
+    50%{transform:rotate(90deg);}
+  }
+  @media screen and (orientation:portrait) and (max-width:640px) and (pointer:coarse){
+    .rotate-overlay{display:flex;}
+    .band,.sheet{display:none;}
+    body.rotate-dismissed .rotate-overlay{display:none;}
+    body.rotate-dismissed .band{display:block;}
+    body.rotate-dismissed .sheet{display:block;}
+  }
+
+  /* ---------- phone landscape: tighten things up to reduce side-scrolling ---------- */
+  @media screen and (orientation:landscape) and (max-height:500px) and (pointer:coarse){
+    body{padding:0 8px 24px;}
+    .band{padding:8px 0;}
+    .band-title{font-size:0.7rem;}
+    .sheet{padding:10px 8px 16px;margin-top:-10px;}
+    .toolbar{gap:8px;margin-bottom:10px;}
+    table{min-width:0;font-size:0.74rem;}
+    th,td{padding:3px 4px;}
   }
 </style>
 </head>
 <body>
 
+<div class="rotate-overlay" id="rotateOverlay">
+  <div class="icon">📱</div>
+  <p>This logbook works best in landscape. Rotate your phone sideways to continue.</p>
+  <button class="secondary" id="rotateDismissBtn" type="button">Continue in portrait</button>
+</div>
+
 <div class="band">
-  <h1>Amateur Radio Log</h1>
-  <p>Digital QSO Logbook</p>
+  <p class="band-title" id="bandTitle">QSO Logbook</p>
 </div>
 
 <div class="sheet">
@@ -271,8 +314,8 @@
       <col style="width:95px">
       <col style="width:64px"><col style="width:64px">
       <col class="col-callsign">
-      <col style="width:70px">
       <col style="width:85px">
+      <col style="width:70px">
       <col style="width:55px"><col style="width:55px">
       <col class="col-remarks">
       <col class="col-act">
@@ -282,8 +325,8 @@
         <th rowspan="2">Date</th>
         <th colspan="2">Time</th>
         <th rowspan="2">Callsign</th>
-        <th rowspan="2">Mode</th>
         <th rowspan="2">Frequency</th>
+        <th rowspan="2">Mode</th>
         <th colspan="2">Report</th>
         <th rowspan="2">Remarks</th>
         <th rowspan="2"></th>
@@ -302,6 +345,7 @@
         <td><input type="time" id="in_start"></td>
         <td><input type="time" id="in_end"></td>
         <td><input type="text" id="in_call" placeholder="callsign" autocomplete="off" style="text-transform:uppercase"></td>
+        <td><input type="text" id="in_freq" placeholder="MHz"></td>
         <td>
           <input type="text" id="in_mode" list="modeList" placeholder="mode" autocomplete="off">
           <datalist id="modeList">
@@ -310,7 +354,6 @@
             <option value="JT65"><option value="JT9"><option value="MFSK">
           </datalist>
         </td>
-        <td><input type="text" id="in_freq" placeholder="MHz"></td>
         <td><input type="text" id="in_rst_s" placeholder="59"></td>
         <td><input type="text" id="in_rst_r" placeholder="59"></td>
         <td><input type="text" id="in_remarks" placeholder="remarks"></td>
@@ -350,9 +393,9 @@
 
   var el = {};
   ["myCall","fileDot","fileStatus","connectBtn","reconnectBtn","exportBtn","clearBtn",
-   "helpBtn","helpDialog","helpCloseBtn",
-   "entries","emptyRow","in_date","in_start","in_end","in_call","in_mode",
-   "in_freq","in_rst_s","in_rst_r","in_remarks","logBtn"
+   "helpBtn","helpDialog","helpCloseBtn","bandTitle","rotateOverlay","rotateDismissBtn",
+   "entries","emptyRow","in_date","in_start","in_end","in_call",
+   "in_freq","in_mode","in_rst_s","in_rst_r","in_remarks","logBtn"
   ].forEach(function(id){ el[id] = document.getElementById(id); });
 
   // ---------- IndexedDB helpers (to persist the file handle across reloads) ----------
@@ -398,9 +441,15 @@
   function loadMyCall(){
     try{ el.myCall.value = localStorage.getItem(LS_MYCALL) || ""; }catch(e){}
   }
+  function updateBandTitle(){
+    var call = el.myCall.value.trim().toUpperCase();
+    el.bandTitle.textContent = (call ? call + " " : "") + "QSO Logbook";
+  }
   el.myCall.addEventListener("change", function(){
     try{ localStorage.setItem(LS_MYCALL, el.myCall.value.trim().toUpperCase()); }catch(e){}
+    updateBandTitle();
   });
+  el.myCall.addEventListener("input", updateBandTitle);
 
   // ---------- rendering ----------
   function fmtDate(iso){
@@ -426,8 +475,8 @@
         "<td>"+esc(q.start)+"</td>"+
         "<td>"+esc(q.end)+"</td>"+
         "<td style='font-weight:700'>"+esc(q.call)+"</td>"+
-        "<td>"+esc(q.mode)+"</td>"+
         "<td>"+esc(q.freq)+"</td>"+
+        "<td>"+esc(q.mode)+"</td>"+
         "<td>"+esc(q.rstS)+"</td>"+
         "<td>"+esc(q.rstR)+"</td>"+
         "<td class='remarks'>"+esc(q.remarks)+"</td>"+
@@ -662,12 +711,12 @@
     }
   }
   el.logBtn.addEventListener("click", logQso);
-  ["in_call","in_mode","in_freq","in_rst_s","in_rst_r","in_remarks"].forEach(function(id){
+  ["in_call","in_freq","in_mode","in_rst_s","in_rst_r","in_remarks"].forEach(function(id){
     el[id].addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); logQso(); } });
   });
 
   // ---------- Alt+W: wipe the input row (press again while empty to undo) ----------
-  var INPUT_ROW_IDS = ["in_date","in_start","in_end","in_call","in_mode","in_freq","in_rst_s","in_rst_r","in_remarks"];
+  var INPUT_ROW_IDS = ["in_date","in_start","in_end","in_call","in_freq","in_mode","in_rst_s","in_rst_r","in_remarks"];
   var lastWipedRow = null;
   function getInputRow(){
     var v = {};
@@ -700,9 +749,20 @@
     }
   });
 
+  // ---------- rotate-to-landscape prompt ----------
+  var LS_ROTATE_DISMISSED = "hamlog_rotate_dismissed_v1";
+  try{
+    if(localStorage.getItem(LS_ROTATE_DISMISSED)) document.body.classList.add("rotate-dismissed");
+  }catch(e){}
+  el.rotateDismissBtn.addEventListener("click", function(){
+    document.body.classList.add("rotate-dismissed");
+    try{ localStorage.setItem(LS_ROTATE_DISMISSED, "1"); }catch(e){}
+  });
+
   // ---------- init ----------
   loadEntries();
   loadMyCall();
+  updateBandTitle();
   render();
   resetInputRowForNext();
   tryRestoreHandle();

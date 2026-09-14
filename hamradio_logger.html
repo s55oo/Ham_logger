@@ -228,6 +228,13 @@
     .sheet{padding:16px 12px 22px;margin-top:-16px;}
   }
 
+  /* ---------- show phone-only controls (e.g. Send Log) just on phones ---------- */
+  .phone-only{display:none;}
+  @media (pointer:coarse) and (max-width:640px),
+         (pointer:coarse) and (max-height:640px){
+    .phone-only{display:inline-block;}
+  }
+
   /* ---------- phone: prompt to rotate to landscape ---------- */
   .rotate-overlay{
     display:none;
@@ -355,7 +362,7 @@
       <button class="secondary" id="connectBtn" type="button" tabindex="-1">📂 Connect ADIF File</button>
       <button class="secondary" id="reconnectBtn" type="button" style="display:none;" tabindex="-1">🔄 Reconnect</button>
       <button class="secondary" id="exportBtn" type="button" tabindex="-1">⬇ Export ADIF</button>
-      <button class="secondary" id="sendLogBtn" type="button" tabindex="-1">📧 Send Log</button>
+      <button class="secondary phone-only" id="sendLogBtn" type="button" tabindex="-1">📧 Send Log</button>
       <button class="danger" id="clearBtn" type="button" tabindex="-1">🗑 Clear Log</button>
       <button class="secondary" id="helpBtn" type="button" tabindex="-1" title="How this works">❓ Help</button>
     </div>

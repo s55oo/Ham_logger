@@ -28,7 +28,7 @@
     color:var(--text);
   }
   .band-title{
-    margin:0 0 16px;
+    margin:0 0 8px;
     text-align:center;
     font-size:0.85rem;
     color:var(--muted);
@@ -37,43 +37,43 @@
   }
   .sheet{
     max-width:1180px;
-    margin:24px auto 0;
+    margin:14px auto 0;
     background:var(--paper);
     box-shadow:0 12px 30px rgba(0,0,0,.18);
     border:1px solid #bbb;
-    padding:24px 24px 30px;
+    padding:14px 14px 18px;
   }
   .toolbar{
     display:flex;
     flex-wrap:wrap;
-    gap:10px 18px;
+    gap:6px 14px;
     align-items:center;
     justify-content:space-between;
-    padding-bottom:16px;
-    margin-bottom:16px;
+    padding-bottom:8px;
+    margin-bottom:8px;
     border-bottom:1px solid var(--line-light);
   }
   .toolbar .group{
     display:flex;
     flex-wrap:wrap;
-    gap:8px;
+    gap:6px;
     align-items:center;
   }
   .toolbar label{
-    font-size:0.8rem;
+    font-size:0.75rem;
     color:var(--muted);
-    margin-right:4px;
+    margin-right:3px;
   }
   .toolbar input[type=text]{
-    padding:6px 8px;
+    padding:4px 6px;
     border:1px solid #bbb;
-    font-size:0.85rem;
-    width:110px;
+    font-size:0.8rem;
+    width:90px;
   }
   button{
     font-family:inherit;
-    font-size:0.82rem;
-    padding:7px 12px;
+    font-size:0.76rem;
+    padding:4px 8px;
     border:1px solid var(--accent-dark);
     background:var(--accent);
     color:#fff;
@@ -97,7 +97,7 @@
     cursor:not-allowed;
   }
   .status{
-    font-size:0.8rem;
+    font-size:0.75rem;
     color:var(--muted);
     display:flex;
     align-items:center;
@@ -288,6 +288,7 @@
       <button class="secondary" id="connectBtn" type="button" tabindex="-1">📂 Connect ADIF File</button>
       <button class="secondary" id="reconnectBtn" type="button" style="display:none;" tabindex="-1">🔄 Reconnect</button>
       <button class="secondary" id="exportBtn" type="button" tabindex="-1">⬇ Export ADIF</button>
+      <button class="secondary" id="sendLogBtn" type="button" tabindex="-1">📧 Send Log</button>
       <button class="danger" id="clearBtn" type="button" tabindex="-1">🗑 Clear Log</button>
       <button class="secondary" id="helpBtn" type="button" tabindex="-1" title="How this works">❓ Help</button>
     </div>
@@ -299,7 +300,7 @@
       <col style="width:calc(10ch + 24px)">
       <col style="width:calc(5ch + 24px)"><col style="width:calc(5ch + 24px)">
       <col style="width:calc(10ch + 10px)">
-      <col style="width:calc(4ch + 10px)">
+      <col style="width:calc(7ch + 10px)">
       <col style="width:calc(6ch + 10px)">
       <col style="width:calc(3ch + 10px)"><col style="width:calc(3ch + 10px)">
       <col style="width:calc(12ch + 10px)">
@@ -353,6 +354,7 @@
   <h2>How this works</h2>
   <p>New contacts are entered in the row at the top. Once logged, they're listed below it sorted by date and time. Your log is kept in this browser (it will still be here next time you open this file).</p>
   <p>Use <strong>Connect ADIF File</strong> once to pick or create an .adi file on your computer — every QSO you log afterwards is appended to it automatically. <strong>Export ADIF</strong> re-downloads the full log as a fresh .adi file any time, and works even if auto-save isn't connected (e.g. in Firefox).</p>
+  <p><strong>Send Log</strong> hands the .adi file to your phone or computer's share sheet (Mail, Gmail, Outlook, etc. — whatever you pick) so it arrives already attached. If your browser can't do that, it downloads the file and opens a blank email instead, so you can attach it yourself.</p>
   <p>Deleting a row removes it from this page and future exports, but not from a file that was already auto-saved.</p>
   <p>Press <strong>Alt+W</strong> to wipe the entry row you're currently filling in; press it again while the row is empty to bring back what you just wiped.</p>
   <p>Mode, Frequency and the RST fields carry over from one logged QSO to the next as defaults, since they rarely change between consecutive contacts.</p>
@@ -377,7 +379,7 @@
   var supportsFS = typeof window.showSaveFilePicker === "function";
 
   var el = {};
-  ["myCall","fileDot","fileStatus","connectBtn","reconnectBtn","exportBtn","clearBtn",
+  ["myCall","fileDot","fileStatus","connectBtn","reconnectBtn","exportBtn","sendLogBtn","clearBtn",
    "helpBtn","helpDialog","helpCloseBtn","bandTitle","rotateOverlay","rotateDismissBtn",
    "entries","emptyRow","in_date","in_start","in_end","in_call",
    "in_freq","in_mode","in_rst_s","in_rst_r","in_remarks","logBtn"
@@ -535,17 +537,57 @@
   }
 
   // ---------- manual export ----------
-  el.exportBtn.addEventListener("click", function(){
+  function adifFilename(){
+    var d = new Date();
+    var call = (el.myCall.value||"").trim().toUpperCase();
+    return (call ? call+"_" : "") + "hamradio_log_"+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+".adi";
+  }
+  function downloadAdif(){
     var blob = new Blob([fullAdifText()], {type:"text/plain"});
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
-    var d = new Date();
     a.href = url;
-    a.download = "hamradio_log_"+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+".adi";
+    a.download = adifFilename();
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+  }
+  el.exportBtn.addEventListener("click", downloadAdif);
+
+  // ---------- send log by email ----------
+  // Browsers give web pages no way to silently attach a file to an email —
+  // that always needs the user to pick where it goes. Where the Web Share
+  // API (with file support) is available — iOS/Android browsers, and most
+  // desktop Chrome/Edge/Safari — this opens the OS share sheet with the
+  // .adi file ready to hand off, and "Mail"/"Outlook" is one tap away.
+  // Elsewhere (e.g. desktop Firefox) it falls back to downloading the file
+  // and opening a blank email, for the user to attach it themselves.
+  el.sendLogBtn.addEventListener("click", function(){
+    if(entries.length === 0){
+      alert("Nothing logged yet — there's no log to send.");
+      return;
+    }
+    var filename = adifFilename();
+    var call = (el.myCall.value||"").trim().toUpperCase();
+    var subject = "QSO Log" + (call ? " — "+call : "");
+    var file = null;
+    try{ file = new File([fullAdifText()], filename, {type:"text/plain"}); }catch(e){}
+
+    if(file && navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
+      navigator.share({
+        files: [file],
+        title: subject,
+        text: subject + " (" + entries.length + " contact" + (entries.length===1?"":"s") + ")"
+      }).catch(function(err){
+        if(err && err.name !== "AbortError") alert("Could not share the log: "+err.message);
+      });
+      return;
+    }
+
+    downloadAdif();
+    alert("Your browser can't attach files to an email automatically, so the log file \""+filename+"\" was downloaded instead. A blank email will open next — attach the downloaded file to it.");
+    window.location.href = "mailto:?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent("Attach "+filename+" (just downloaded) before sending.");
   });
 
   // ---------- clear log ----------

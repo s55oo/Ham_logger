@@ -239,16 +239,16 @@
   <div class="toolbar">
     <div class="group">
       <label for="myCall">My Callsign</label>
-      <input type="text" id="myCall" placeholder="e.g. S51ABC">
+      <input type="text" id="myCall" placeholder="e.g. S51ABC" tabindex="-1">
     </div>
     <div class="group">
       <span class="status"><span class="dot off" id="fileDot"></span><span id="fileStatus">Not connected — entries are kept in this browser only</span></span>
     </div>
     <div class="group">
-      <button class="secondary" id="connectBtn" type="button">📂 Connect ADIF File</button>
-      <button class="secondary" id="reconnectBtn" type="button" style="display:none;">🔄 Reconnect</button>
-      <button class="secondary" id="exportBtn" type="button">⬇ Export ADIF</button>
-      <button class="danger" id="clearBtn" type="button">🗑 Clear Log</button>
+      <button class="secondary" id="connectBtn" type="button" tabindex="-1">📂 Connect ADIF File</button>
+      <button class="secondary" id="reconnectBtn" type="button" style="display:none;" tabindex="-1">🔄 Reconnect</button>
+      <button class="secondary" id="exportBtn" type="button" tabindex="-1">⬇ Export ADIF</button>
+      <button class="danger" id="clearBtn" type="button" tabindex="-1">🗑 Clear Log</button>
     </div>
   </div>
 
@@ -411,7 +411,7 @@
         "<td>"+esc(q.rstS)+"</td>"+
         "<td>"+esc(q.rstR)+"</td>"+
         "<td class='remarks'>"+esc(q.remarks)+"</td>"+
-        "<td><button class='del-btn' data-id='"+q.id+"' title='Delete row'>✕</button></td>";
+        "<td><button class='del-btn' data-id='"+q.id+"' title='Delete row' tabindex='-1'>✕</button></td>";
       el.entries.appendChild(tr);
     });
     el.entries.querySelectorAll(".del-btn").forEach(function(b){

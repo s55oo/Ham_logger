@@ -59,6 +59,15 @@
     gap:6px;
     align-items:center;
   }
+  .toolbar-bottom{
+    justify-content:center;
+    border-bottom:none;
+    border-top:1px solid var(--line-light);
+    padding-bottom:0;
+    padding-top:8px;
+    margin-bottom:0;
+    margin-top:8px;
+  }
   .toolbar label{
     font-size:0.75rem;
     color:var(--muted);
@@ -284,14 +293,6 @@
     <div class="group">
       <span class="status"><span class="dot off" id="fileDot"></span><span id="fileStatus"></span></span>
     </div>
-    <div class="group">
-      <button class="secondary" id="connectBtn" type="button" tabindex="-1">📂 Connect ADIF File</button>
-      <button class="secondary" id="reconnectBtn" type="button" style="display:none;" tabindex="-1">🔄 Reconnect</button>
-      <button class="secondary" id="exportBtn" type="button" tabindex="-1">⬇ Export ADIF</button>
-      <button class="secondary" id="sendLogBtn" type="button" tabindex="-1">📧 Send Log</button>
-      <button class="danger" id="clearBtn" type="button" tabindex="-1">🗑 Clear Log</button>
-      <button class="secondary" id="helpBtn" type="button" tabindex="-1" title="How this works">❓ Help</button>
-    </div>
   </div>
 
   <div class="table-wrap">
@@ -347,6 +348,17 @@
       <tr class="empty-row" id="emptyRow"><td colspan="10">No contacts logged yet — enter your first QSO above.</td></tr>
     </tbody>
   </table>
+  </div>
+
+  <div class="toolbar toolbar-bottom">
+    <div class="group">
+      <button class="secondary" id="connectBtn" type="button" tabindex="-1">📂 Connect ADIF File</button>
+      <button class="secondary" id="reconnectBtn" type="button" style="display:none;" tabindex="-1">🔄 Reconnect</button>
+      <button class="secondary" id="exportBtn" type="button" tabindex="-1">⬇ Export ADIF</button>
+      <button class="secondary" id="sendLogBtn" type="button" tabindex="-1">📧 Send Log</button>
+      <button class="danger" id="clearBtn" type="button" tabindex="-1">🗑 Clear Log</button>
+      <button class="secondary" id="helpBtn" type="button" tabindex="-1" title="How this works">❓ Help</button>
+    </div>
   </div>
 </div>
 

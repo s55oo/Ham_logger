@@ -336,9 +336,6 @@
         <th>Sent</th><th>Rcvd</th>
       </tr>
     </thead>
-    <tbody id="entries">
-      <tr class="empty-row" id="emptyRow"><td colspan="10">No contacts logged yet — enter your first QSO below.</td></tr>
-    </tbody>
     <tbody id="inputRow">
       <tr>
         <td><input type="date" id="in_date"></td>
@@ -360,13 +357,16 @@
         <td class="log-btn-cell"><button class="log-btn" id="logBtn" type="button" title="Log this QSO">➕</button></td>
       </tr>
     </tbody>
+    <tbody id="entries">
+      <tr class="empty-row" id="emptyRow"><td colspan="10">No contacts logged yet — enter your first QSO above.</td></tr>
+    </tbody>
   </table>
   </div>
 </div>
 
 <dialog id="helpDialog">
   <h2>How this works</h2>
-  <p>New contacts are entered in the row at the bottom and appear above it once logged, like filling a paper logbook. Your log is kept in this browser (it will still be here next time you open this file).</p>
+  <p>New contacts are entered in the row at the top. Once logged, they're listed below it sorted by date and time. Your log is kept in this browser (it will still be here next time you open this file).</p>
   <p>Use <strong>Connect ADIF File</strong> once to pick or create an .adi file on your computer — every QSO you log afterwards is appended to it automatically. <strong>Export ADIF</strong> re-downloads the full log as a fresh .adi file any time, and works even if auto-save isn't connected (e.g. in Firefox).</p>
   <p>Deleting a row removes it from this page and future exports, but not from a file that was already auto-saved.</p>
   <p>Press <strong>Alt+W</strong> to wipe the entry row you're currently filling in; press it again while the row is empty to bring back what you just wiped.</p>
@@ -462,13 +462,22 @@
     d.textContent = s == null ? "" : s;
     return d.innerHTML;
   }
+  function dateTimeKey(q){
+    // Sort key only, for on-screen display — the underlying entries[]
+    // array (and therefore ADIF export/auto-save order) is untouched.
+    return (q.date || "") + "T" + (q.start || "00:00");
+  }
   function render(){
     el.entries.innerHTML = "";
     if(entries.length === 0){
       el.entries.appendChild(el.emptyRow);
       return;
     }
-    entries.forEach(function(q){
+    var sorted = entries.slice().sort(function(a,b){
+      var ka = dateTimeKey(a), kb = dateTimeKey(b);
+      return ka < kb ? -1 : ka > kb ? 1 : 0;
+    });
+    sorted.forEach(function(q){
       var tr = document.createElement("tr");
       tr.innerHTML =
         "<td>"+esc(fmtDate(q.date))+"</td>"+

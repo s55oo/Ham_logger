@@ -206,13 +206,32 @@
     white-space:nowrap;
   }
 
-  .note{
-    margin-top:14px;
-    font-size:0.78rem;
+  dialog#helpDialog{
+    max-width:520px;
+    width:90vw;
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:20px 24px;
+    color:var(--text);
+    box-shadow:0 8px 30px rgba(0,0,0,.25);
+  }
+  dialog#helpDialog::backdrop{
+    background:rgba(0,0,0,.45);
+  }
+  dialog#helpDialog h2{
+    margin-top:0;
+    font-size:1rem;
+  }
+  dialog#helpDialog p{
+    font-size:0.82rem;
     color:var(--muted);
     line-height:1.5;
   }
-  .note strong{color:var(--text);}
+  dialog#helpDialog p strong{color:var(--text);}
+  dialog#helpDialog .dialog-actions{
+    text-align:right;
+    margin-top:16px;
+  }
   .footer-links{
     text-align:center;
     margin-top:26px;
@@ -249,6 +268,7 @@
       <button class="secondary" id="reconnectBtn" type="button" style="display:none;" tabindex="-1">🔄 Reconnect</button>
       <button class="secondary" id="exportBtn" type="button" tabindex="-1">⬇ Export ADIF</button>
       <button class="danger" id="clearBtn" type="button" tabindex="-1">🗑 Clear Log</button>
+      <button class="secondary" id="helpBtn" type="button" tabindex="-1" title="How this works">❓ Help</button>
     </div>
   </div>
 
@@ -307,12 +327,20 @@
   </table>
   </div>
 
-  <p class="note">
-    <strong>How this works:</strong> new contacts are entered in the row at the bottom and appear above it once logged, like filling a paper logbook. Your log is kept in this browser (it will still be here next time you open this file). Use <strong>Connect ADIF File</strong> once to pick or create an .adi file on your computer — every QSO you log afterwards is appended to it automatically. <strong>Export ADIF</strong> re-downloads the full log as a fresh .adi file any time, and works even if auto-save isn't connected (e.g. in Firefox). Deleting a row removes it from this page and future exports, but not from a file that was already auto-saved. Press <strong>Alt+W</strong> to wipe the entry row you're currently filling in; press it again while the row is empty to bring back what you just wiped. Mode, Frequency and the RST fields carry over from one logged QSO to the next as defaults, since they rarely change between consecutive contacts.
-  </p>
-
   <div class="footer-links">ADIF format reference: <a href="https://www.adif.org/" target="_blank" rel="noopener">adif.org</a></div>
 </div>
+
+<dialog id="helpDialog">
+  <h2>How this works</h2>
+  <p>New contacts are entered in the row at the bottom and appear above it once logged, like filling a paper logbook. Your log is kept in this browser (it will still be here next time you open this file).</p>
+  <p>Use <strong>Connect ADIF File</strong> once to pick or create an .adi file on your computer — every QSO you log afterwards is appended to it automatically. <strong>Export ADIF</strong> re-downloads the full log as a fresh .adi file any time, and works even if auto-save isn't connected (e.g. in Firefox).</p>
+  <p>Deleting a row removes it from this page and future exports, but not from a file that was already auto-saved.</p>
+  <p>Press <strong>Alt+W</strong> to wipe the entry row you're currently filling in; press it again while the row is empty to bring back what you just wiped.</p>
+  <p>Mode, Frequency and the RST fields carry over from one logged QSO to the next as defaults, since they rarely change between consecutive contacts.</p>
+  <div class="dialog-actions">
+    <button class="secondary" id="helpCloseBtn" type="button">Close</button>
+  </div>
+</dialog>
 
 <script>
 (function(){
@@ -331,6 +359,7 @@
 
   var el = {};
   ["myCall","fileDot","fileStatus","connectBtn","reconnectBtn","exportBtn","clearBtn",
+   "helpBtn","helpDialog","helpCloseBtn",
    "entries","emptyRow","in_date","in_start","in_end","in_call","in_mode",
    "in_freq","in_rst_s","in_rst_r","in_remarks","logBtn"
   ].forEach(function(id){ el[id] = document.getElementById(id); });
@@ -492,6 +521,13 @@
     entries = [];
     saveEntries();
     render();
+  });
+
+  // ---------- help dialog ----------
+  el.helpBtn.addEventListener("click", function(){ el.helpDialog.showModal(); });
+  el.helpCloseBtn.addEventListener("click", function(){ el.helpDialog.close(); });
+  el.helpDialog.addEventListener("click", function(e){
+    if(e.target === el.helpDialog) el.helpDialog.close(); // click on backdrop
   });
 
   // ---------- File System Access API: connect / auto-append ----------

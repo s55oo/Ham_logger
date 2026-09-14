@@ -259,7 +259,6 @@
       <col style="width:64px"><col style="width:64px">
       <col class="col-callsign">
       <col style="width:70px">
-      <col style="width:70px">
       <col style="width:85px">
       <col style="width:55px"><col style="width:55px">
       <col class="col-remarks">
@@ -271,7 +270,6 @@
         <th colspan="2">Time</th>
         <th rowspan="2">Callsign</th>
         <th rowspan="2">Mode</th>
-        <th rowspan="2">Power</th>
         <th rowspan="2">Frequency</th>
         <th colspan="2">Report</th>
         <th rowspan="2">Remarks</th>
@@ -283,7 +281,7 @@
       </tr>
     </thead>
     <tbody id="entries">
-      <tr class="empty-row" id="emptyRow"><td colspan="11">No contacts logged yet — enter your first QSO below.</td></tr>
+      <tr class="empty-row" id="emptyRow"><td colspan="10">No contacts logged yet — enter your first QSO below.</td></tr>
     </tbody>
     <tbody id="inputRow">
       <tr>
@@ -299,7 +297,6 @@
             <option value="JT65"><option value="JT9"><option value="MFSK">
           </datalist>
         </td>
-        <td><input type="text" id="in_power" placeholder="W"></td>
         <td><input type="text" id="in_freq" placeholder="MHz"></td>
         <td><input type="text" id="in_rst_s" placeholder="59"></td>
         <td><input type="text" id="in_rst_r" placeholder="59"></td>
@@ -334,7 +331,7 @@
 
   var el = {};
   ["myCall","fileDot","fileStatus","connectBtn","reconnectBtn","exportBtn","clearBtn",
-   "entries","emptyRow","in_date","in_start","in_end","in_call","in_mode","in_power",
+   "entries","emptyRow","in_date","in_start","in_end","in_call","in_mode",
    "in_freq","in_rst_s","in_rst_r","in_remarks","logBtn"
   ].forEach(function(id){ el[id] = document.getElementById(id); });
 
@@ -410,7 +407,6 @@
         "<td>"+esc(q.end)+"</td>"+
         "<td style='font-weight:700'>"+esc(q.call)+"</td>"+
         "<td>"+esc(q.mode)+"</td>"+
-        "<td>"+esc(q.power)+"</td>"+
         "<td>"+esc(q.freq)+"</td>"+
         "<td>"+esc(q.rstS)+"</td>"+
         "<td>"+esc(q.rstR)+"</td>"+
@@ -462,7 +458,6 @@
     line += adifField("CALL", (q.call||"").toUpperCase());
     if(myCall) line += adifField("STATION_CALLSIGN", myCall);
     line += adifField("MODE", (q.mode||"").toUpperCase());
-    line += adifField("TX_PWR", q.power);
     line += adifField("FREQ", q.freq);
     line += adifField("RST_SENT", q.rstS);
     line += adifField("RST_RCVD", q.rstR);
@@ -597,7 +592,6 @@
     el.in_end.value = "";
     el.in_call.value = "";
     el.in_mode.value = "";
-    el.in_power.value = "";
     el.in_freq.value = "";
     el.in_rst_s.value = "";
     el.in_rst_r.value = "";
@@ -619,7 +613,6 @@
       end: el.in_end.value,
       call: call.toUpperCase(),
       mode: el.in_mode.value.trim().toUpperCase(),
-      power: el.in_power.value.trim(),
       freq: el.in_freq.value.trim(),
       rstS: el.in_rst_s.value.trim(),
       rstR: el.in_rst_r.value.trim(),
@@ -643,12 +636,12 @@
     }
   }
   el.logBtn.addEventListener("click", logQso);
-  ["in_call","in_mode","in_power","in_freq","in_rst_s","in_rst_r","in_remarks"].forEach(function(id){
+  ["in_call","in_mode","in_freq","in_rst_s","in_rst_r","in_remarks"].forEach(function(id){
     el[id].addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); logQso(); } });
   });
 
   // ---------- Alt+W: wipe the input row (press again while empty to undo) ----------
-  var INPUT_ROW_IDS = ["in_date","in_start","in_end","in_call","in_mode","in_power","in_freq","in_rst_s","in_rst_r","in_remarks"];
+  var INPUT_ROW_IDS = ["in_date","in_start","in_end","in_call","in_mode","in_freq","in_rst_s","in_rst_r","in_remarks"];
   var lastWipedRow = null;
   function getInputRow(){
     var v = {};

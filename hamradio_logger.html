@@ -364,7 +364,7 @@
 
 <dialog id="helpDialog">
   <h2>How this works</h2>
-  <p>New contacts are entered in the row at the top. Once logged, they're listed below it sorted by date and time. Your log is kept in this browser (it will still be here next time you open this file).</p>
+  <p>New contacts are entered in the row at the top. Once logged, they're listed below it with the most recent QSO first. Your log is kept in this browser (it will still be here next time you open this file).</p>
   <p>Use <strong>Connect ADIF File</strong> once to pick or create an .adi file on your computer — every QSO you log afterwards is appended to it automatically. <strong>Export ADIF</strong> re-downloads the full log as a fresh .adi file any time, and works even if auto-save isn't connected (e.g. in Firefox).</p>
   <p><strong>Send Log</strong> hands the .adi file to your phone or computer's share sheet (Mail, Gmail, Outlook, etc. — whatever you pick) so it arrives already attached. If your browser can't do that, it downloads the file and opens a blank email instead, so you can attach it yourself.</p>
   <p>Deleting a row removes it from this page and future exports, but not from a file that was already auto-saved.</p>
@@ -474,7 +474,7 @@
     }
     var sorted = entries.slice().sort(function(a,b){
       var ka = dateTimeKey(a), kb = dateTimeKey(b);
-      return ka < kb ? -1 : ka > kb ? 1 : 0;
+      return ka < kb ? 1 : ka > kb ? -1 : 0; // newest first, right under the entry row
     });
     sorted.forEach(function(q){
       var tr = document.createElement("tr");

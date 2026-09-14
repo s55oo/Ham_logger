@@ -610,7 +610,7 @@
       id: Date.now().toString(36)+Math.random().toString(36).slice(2,7),
       date: el.in_date.value || nowDate(),
       start: el.in_start.value,
-      end: el.in_end.value,
+      end: el.in_end.value || nowTime(),
       call: call.toUpperCase(),
       mode: el.in_mode.value.trim().toUpperCase(),
       freq: el.in_freq.value.trim(),

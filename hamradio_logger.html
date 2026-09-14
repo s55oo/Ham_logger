@@ -311,7 +311,7 @@
   </div>
 
   <p class="note">
-    <strong>How this works:</strong> new contacts are entered in the row at the bottom and appear above it once logged, like filling a paper logbook. Your log is kept in this browser (it will still be here next time you open this file). Use <strong>Connect ADIF File</strong> once to pick or create an .adi file on your computer — every QSO you log afterwards is appended to it automatically. <strong>Export ADIF</strong> re-downloads the full log as a fresh .adi file any time, and works even if auto-save isn't connected (e.g. in Firefox). Deleting a row removes it from this page and future exports, but not from a file that was already auto-saved.
+    <strong>How this works:</strong> new contacts are entered in the row at the bottom and appear above it once logged, like filling a paper logbook. Your log is kept in this browser (it will still be here next time you open this file). Use <strong>Connect ADIF File</strong> once to pick or create an .adi file on your computer — every QSO you log afterwards is appended to it automatically. <strong>Export ADIF</strong> re-downloads the full log as a fresh .adi file any time, and works even if auto-save isn't connected (e.g. in Firefox). Deleting a row removes it from this page and future exports, but not from a file that was already auto-saved. Press <strong>Alt+W</strong> to wipe the entry row you're currently filling in; press it again while the row is empty to bring back what you just wiped.
   </p>
 
   <div class="footer-links">ADIF format reference: <a href="https://www.adif.org/" target="_blank" rel="noopener">adif.org</a></div>
@@ -645,6 +645,40 @@
   el.logBtn.addEventListener("click", logQso);
   ["in_call","in_mode","in_power","in_freq","in_rst_s","in_rst_r","in_remarks"].forEach(function(id){
     el[id].addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); logQso(); } });
+  });
+
+  // ---------- Alt+W: wipe the input row (press again while empty to undo) ----------
+  var INPUT_ROW_IDS = ["in_date","in_start","in_end","in_call","in_mode","in_power","in_freq","in_rst_s","in_rst_r","in_remarks"];
+  var lastWipedRow = null;
+  function getInputRow(){
+    var v = {};
+    INPUT_ROW_IDS.forEach(function(id){ v[id] = el[id].value; });
+    return v;
+  }
+  function setInputRow(v){
+    INPUT_ROW_IDS.forEach(function(id){ el[id].value = v[id] || ""; });
+  }
+  function isInputRowEmpty(){
+    return INPUT_ROW_IDS.every(function(id){ return !el[id].value; });
+  }
+  function wipeEntry(){
+    if(isInputRowEmpty()){
+      if(lastWipedRow){
+        setInputRow(lastWipedRow);
+        lastWipedRow = null;
+        el.in_call.focus();
+      }
+      return;
+    }
+    lastWipedRow = getInputRow();
+    setInputRow({});
+    el.in_call.focus();
+  }
+  document.addEventListener("keydown", function(e){
+    if(e.altKey && !e.ctrlKey && !e.metaKey && (e.key === "w" || e.key === "W")){
+      e.preventDefault();
+      wipeEntry();
+    }
   });
 
   // ---------- init ----------

@@ -308,7 +308,7 @@
   </div>
 
   <p class="note">
-    <strong>How this works:</strong> new contacts are entered in the row at the bottom and appear above it once logged, like filling a paper logbook. Your log is kept in this browser (it will still be here next time you open this file). Use <strong>Connect ADIF File</strong> once to pick or create an .adi file on your computer — every QSO you log afterwards is appended to it automatically. <strong>Export ADIF</strong> re-downloads the full log as a fresh .adi file any time, and works even if auto-save isn't connected (e.g. in Firefox). Deleting a row removes it from this page and future exports, but not from a file that was already auto-saved. Press <strong>Alt+W</strong> to wipe the entry row you're currently filling in; press it again while the row is empty to bring back what you just wiped.
+    <strong>How this works:</strong> new contacts are entered in the row at the bottom and appear above it once logged, like filling a paper logbook. Your log is kept in this browser (it will still be here next time you open this file). Use <strong>Connect ADIF File</strong> once to pick or create an .adi file on your computer — every QSO you log afterwards is appended to it automatically. <strong>Export ADIF</strong> re-downloads the full log as a fresh .adi file any time, and works even if auto-save isn't connected (e.g. in Firefox). Deleting a row removes it from this page and future exports, but not from a file that was already auto-saved. Press <strong>Alt+W</strong> to wipe the entry row you're currently filling in; press it again while the row is empty to bring back what you just wiped. Mode, Frequency and the RST fields carry over from one logged QSO to the next as defaults, since they rarely change between consecutive contacts.
   </p>
 
   <div class="footer-links">ADIF format reference: <a href="https://www.adif.org/" target="_blank" rel="noopener">adif.org</a></div>
@@ -591,10 +591,9 @@
     el.in_start.value = nowTime();
     el.in_end.value = "";
     el.in_call.value = "";
-    el.in_mode.value = "";
-    el.in_freq.value = "";
-    el.in_rst_s.value = "";
-    el.in_rst_r.value = "";
+    // Mode, Frequency, RST Sent and RST Rcvd are left as-is so they carry
+    // over as defaults for the next QSO, since they rarely change between
+    // consecutive contacts.
     el.in_remarks.value = "";
     el.in_call.focus();
   }

@@ -282,7 +282,7 @@
       <input type="text" id="myCall" placeholder="e.g. S51ABC" tabindex="-1">
     </div>
     <div class="group">
-      <span class="status"><span class="dot off" id="fileDot"></span><span id="fileStatus">Not connected — entries are kept in this browser only</span></span>
+      <span class="status"><span class="dot off" id="fileDot"></span><span id="fileStatus"></span></span>
     </div>
     <div class="group">
       <button class="secondary" id="connectBtn" type="button" tabindex="-1">📂 Connect ADIF File</button>
@@ -568,6 +568,7 @@
   function setStatus(mode, text){
     el.fileDot.className = "dot "+mode;
     el.fileStatus.textContent = text;
+    el.fileStatus.parentElement.style.display = text ? "" : "none";
   }
 
   function updateStatusIdle(){
@@ -580,7 +581,7 @@
       setStatus("warn", "Linked to “"+fileHandle.name+"” — click Reconnect to resume auto-save");
       el.reconnectBtn.style.display = "";
     } else {
-      setStatus("off", "Not connected — entries are kept in this browser only");
+      setStatus("off", "");
     }
   }
 
